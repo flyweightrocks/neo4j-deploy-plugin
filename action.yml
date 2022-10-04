@@ -52,6 +52,7 @@ runs:
         target: "."
 
     - name: Prepare target plugin path
+      shell: bash
       run: |
         echo "PLUGIN_FILE=$(basename ${{ inputs.LOCAL_PLUGIN_FILE }})" >> $GITHUB_ENV
         echo "TARGET_DIR=PLUGIN_FILE/${{ inputs.REMOTE_PLUGIN_DIR }}" >> $GITHUB_ENV
