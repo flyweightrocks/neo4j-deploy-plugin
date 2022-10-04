@@ -1,16 +1,75 @@
 # action.yml
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Neo4j Deploy Plugin'
+description: 'Deploy a Neo4j plugin to a remote Neo4j server'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  local-plugin-file:  
+    description: 'Plugin JAR file to be deployed to Neo4j'
     required: true
-    default: 'World'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  
+  remote-host:  
+    description: 'Host address of remote Neo4j server'
+    required: true
+
+  remote-port:  
+    description: 'Port of remote Neo4j server'
+    required: false
+    default: '22'
+
+  remote-user:  
+    description: 'Username on remote Neo4j server'
+    required: true
+
+  remote-password:  
+    description: 'Password on remote Neo4j server'
+    required: false
+
+  remote-ssh-key-content:  
+    description: 'SSH private key content'
+    required: false
+
+  remote-ssh-key-file:  
+    description: 'SSH private key file'
+    required: false
+
+  remote-plugin-dir:
+    description: 'Remote plugin directory on Neo4j'
+    required: false
+    default: '/var/lib/neo4j/plugins'
+
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  args:
-    - ${{ inputs.who-to-greet }}
+  using: "composite"
+  steps:
+    - name: Upload plugin to remote Neo4j server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ inputs.remote-host }}
+        port: ${{ inputs.remote-port }}
+        username: ${{ inputs.remote-user }}
+        password: ${{ inputs.remote-password }}
+        key: ${{ inputs.remote-ssh-key-content }}
+        key_file: ${{ inputs.remote-ssh-key-file }}
+        source: ${{ inputs.local-plugin-file }}
+        target: "."
+
+    - name: Prepare target plugin path
+      run: |
+        echo "PLUGIN_FILE=$(basename ${{ inputs.LOCAL_PLUGIN_FILE }})" >> $GITHUB_ENV
+        echo "TARGET_DIR=PLUGIN_FILE/${{ inputs.REMOTE_PLUGIN_DIR }}" >> $GITHUB_ENV
+      env:
+        INPUT_FILE: ${{ inputs.LOCAL_PLUGIN_FILE }} 
+        INPUT_DIR: ${{ inputs.REMOTE_PLUGIN_DIR }} 
+
+    - name: Move plugin to target directory and update permissions
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.remote-host }}
+        username: ${{ inputs.remote-user }}
+        password: ${{ inputs.remote-password }}
+        port: ${{ inputs.remote-port }}
+        key: ${{ inputs.remote-ssh-key-content }}
+        key_file: ${{ inputs.remote-ssh-key-file }}
+        script_stop: true
+        script: |
+          sudo mv ${{ env.PLUGIN_FILE }} ${{ env.TARGET_DIR }}
+          sudo chown -R neo4j:neo4j ${{ env.TARGET_DIR }}
+          sudo chmod +x ${{ env.TARGET_DIR }}
