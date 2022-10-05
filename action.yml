@@ -47,7 +47,7 @@ runs:
         username: ${{ inputs.remote-user }}
         password: ${{ inputs.remote-password }}
         key: ${{ inputs.remote-ssh-key-content }}
-        key_file: ${{ inputs.remote-ssh-key-file }}
+        key_path: ${{ inputs.remote-ssh-key-file }}
         source: ${{ inputs.local-plugin-file }}
         target: "."
 
@@ -68,7 +68,7 @@ runs:
         password: ${{ inputs.remote-password }}
         port: ${{ inputs.remote-port }}
         key: ${{ inputs.remote-ssh-key-content }}
-        key_file: ${{ inputs.remote-ssh-key-file }}
+        key_path: ${{ inputs.remote-ssh-key-file }}
         script_stop: true
         script: |
           sudo mv ${{ env.PLUGIN_FILE }} ${{ env.TARGET_DIR }}
