@@ -31,6 +31,10 @@ inputs:
     description: 'SSH private key file'
     required: false
 
+  remote-ssh-key-passphrase:
+    description: 'Passphrase to decrypt SSH private key'
+    required: false
+
   remote-plugin-dir:
     description: 'Remote plugin directory on Neo4j'
     required: false
@@ -39,7 +43,20 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Check if remote SSH key or password was provided
+      if: ${{ github.event.inputs.remote-password ==  "" && github.event.inputs.remote-ssh-key-content == "" && github.event.inputs.remote-ssh-key-file == "" }}
+      run: | 
+        echo "ERROR: No remote SSH key or password was provided"
+        exit 1
+
+    - name: Check if local plugin is a JAR file
+      if: ${{ endsWith(github.event.inputs.local-plugin-file, ".jar") == false }}
+      run: | 
+        echo "ERROR: Local plugin file is not a JAR file"
+        exit 1   
+
     - name: Upload plugin to remote Neo4j server
+      if: ${{ failure() }}
       uses: appleboy/scp-action@master
       with:
         host: ${{ inputs.remote-host }}
@@ -48,16 +65,12 @@ runs:
         password: ${{ inputs.remote-password }}
         key: ${{ inputs.remote-ssh-key-content }}
         key_path: ${{ inputs.remote-ssh-key-file }}
+        passphrase: ${{ inputs.remote-ssh-key-passphrase }}
         source: ${{ inputs.local-plugin-file }}
         target: "."
 
-    - name: Prepare target plugin path
-      shell: bash
-      run: |
-        echo "SOURCE_FILE=$(basename ${{ inputs.local-plugin-file }})" >> $GITHUB_ENV
-        echo "TARGET_PATH=${{ inputs.remote-plugin-dir }}/$SOURCE_FILE" >> $GITHUB_ENV
-
     - name: Move plugin to target directory and update permissions
+      if: ${{ failure() }}
       uses: appleboy/ssh-action@master
       with:
         host: ${{ inputs.remote-host }}
@@ -66,8 +79,14 @@ runs:
         port: ${{ inputs.remote-port }}
         key: ${{ inputs.remote-ssh-key-content }}
         key_path: ${{ inputs.remote-ssh-key-file }}
+        passphrase: ${{ inputs.remote-ssh-key-passphrase }}
         script_stop: true
         script: |
+          SOURCE_FILE=$(basename ${{ inputs.local-plugin-file }})
+          TARGET_PATH=${{ inputs.remote-plugin-dir }}/$SOURCE_FILE
+          echo "Moving $SOURCE_FILE to $TARGET_PATH"
           sudo mv ${{ env.SOURCE_FILE }} ${{ env.TARGET_PATH }}
+          echo "Changing owner and group to neo4j:neo4j"
           sudo chown -R neo4j:neo4j ${{ env.TARGET_PATH }}
+          echo "Changing mode to executable"
           sudo chmod +x ${{ env.TARGET_PATH }}
