@@ -54,11 +54,8 @@ runs:
     - name: Prepare target plugin path
       shell: bash
       run: |
-        echo "PLUGIN_FILE=$(basename ${{ inputs.LOCAL_PLUGIN_FILE }})" >> $GITHUB_ENV
-        echo "TARGET_DIR=PLUGIN_FILE/${{ inputs.REMOTE_PLUGIN_DIR }}" >> $GITHUB_ENV
-      env:
-        INPUT_FILE: ${{ inputs.LOCAL_PLUGIN_FILE }} 
-        INPUT_DIR: ${{ inputs.REMOTE_PLUGIN_DIR }} 
+        echo "PLUGIN_FILE=$(basename ${{ inputs.local-plugin-file }})" >> $GITHUB_ENV
+        echo "TARGET_DIR=PLUGIN_FILE/${{ inputs.remote-plugin-dir }}" >> $GITHUB_ENV
 
     - name: Move plugin to target directory and update permissions
       uses: appleboy/ssh-action@master
