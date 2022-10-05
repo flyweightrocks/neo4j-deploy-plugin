@@ -54,8 +54,8 @@ runs:
     - name: Prepare target plugin path
       shell: bash
       run: |
-        echo "PLUGIN_FILE=$(basename ${{ inputs.local-plugin-file }})" >> $GITHUB_ENV
-        echo "TARGET_DIR=PLUGIN_FILE/${{ inputs.remote-plugin-dir }}" >> $GITHUB_ENV
+        echo "SOURCE_FILE=$(basename ${{ inputs.local-plugin-file }})" >> $GITHUB_ENV
+        echo "TARGET_PATH=${{ inputs.remote-plugin-dir }}/$SOURCE_FILE" >> $GITHUB_ENV
 
     - name: Move plugin to target directory and update permissions
       uses: appleboy/ssh-action@master
@@ -68,6 +68,6 @@ runs:
         key_path: ${{ inputs.remote-ssh-key-file }}
         script_stop: true
         script: |
-          sudo mv ${{ env.PLUGIN_FILE }} ${{ env.TARGET_DIR }}
-          sudo chown -R neo4j:neo4j ${{ env.TARGET_DIR }}
-          sudo chmod +x ${{ env.TARGET_DIR }}
+          sudo mv ${{ env.SOURCE_FILE }} ${{ env.TARGET_PATH }}
+          sudo chown -R neo4j:neo4j ${{ env.TARGET_PATH }}
+          sudo chmod +x ${{ env.TARGET_PATH }}
