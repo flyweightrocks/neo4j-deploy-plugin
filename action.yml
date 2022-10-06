@@ -50,8 +50,8 @@ runs:
         echo "ERROR: No remote SSH key or password was provided"
         exit 1
 
-    - name: Check if local plugin is a JAR file
-      if: ${{ endsWith(github.event.inputs.local-plugin-file, '.jar') == false }}
+    - name: Check if plugin is a JAR file
+      if: endsWith(github.event.inputs.local-plugin-file, '.jar') != true
       shell: bash
       run: | 
         echo "ERROR: Local plugin file is not a JAR file"
