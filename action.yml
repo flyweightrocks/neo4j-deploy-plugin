@@ -47,14 +47,14 @@ runs:
       if: ${{ github.event.inputs.remote-password ==  '' && github.event.inputs.remote-ssh-key-content == '' && github.event.inputs.remote-ssh-key-file == '' }}
       shell: bash
       run: | 
-        echo "ERROR: No remote SSH key or password was provided"
+        echo "::error ::No remote SSH key or password was provided"
         exit 1
 
     - name: Check if plugin is a JAR file
-      if: endsWith(github.event.inputs.local-plugin-file, '.jar') != true
+      if: contains(github.event.inputs.local-plugin-file, '.jar') == false
       shell: bash
       run: | 
-        echo "ERROR: Local plugin file is not a JAR file"
+        echo "::error ::Local plugin file is not a JAR file"
         exit 1   
 
     - name: Upload plugin to remote Neo4j server
