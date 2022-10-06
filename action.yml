@@ -58,7 +58,7 @@ runs:
         exit 1   
 
     - name: Upload plugin to remote Neo4j server
-      if: ${{ failure() }}
+      if: ${{ success() }}
       uses: appleboy/scp-action@master
       with:
         host: ${{ inputs.remote-host }}
@@ -72,7 +72,7 @@ runs:
         target: "."
 
     - name: Move plugin to target directory and update permissions
-      if: ${{ failure() }}
+      if: ${{ success() }}
       uses: appleboy/ssh-action@master
       with:
         host: ${{ inputs.remote-host }}
