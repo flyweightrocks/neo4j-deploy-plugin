@@ -44,7 +44,7 @@ runs:
   using: "composite"
   steps:
     - name: Check if remote SSH key or password was provided
-      if: ${{ github.event.inputs.remote-password ==  "" && github.event.inputs.remote-ssh-key-content == "" && github.event.inputs.remote-ssh-key-file == "" }}
+      if: "${{ github.event.inputs.remote-password ==  '' && github.event.inputs.remote-ssh-key-content == '' && github.event.inputs.remote-ssh-key-file == '' }}"
       shell: bash
       run: | 
         echo "ERROR: No remote SSH key or password was provided"
