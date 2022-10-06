@@ -51,7 +51,7 @@ runs:
         exit 1
 
     - name: Check if plugin is a JAR file
-      if: contains(github.event.inputs.local-plugin-file, '.jar') == false
+      if: ${{ !endsWith(github.event.inputs.local-plugin-file, '.jar') }}
       shell: bash
       run: | 
         echo "::error ::Local plugin file is not a JAR file"
