@@ -71,9 +71,19 @@ runs:
         source: ${{ inputs.local-plugin-file }}
         target: "."
 
+    - name: Prepare plugin file path
+      if: ${{ success() }}
+      shell: bash
+      run: |
+        echo "SOURCE_FILE=$(basename ${{ inputs.local-plugin-file }})" >> $GITHUB_ENV
+        echo "TARGET_PATH=${{ inputs.remote-plugin-dir }}/$(basename ${{ inputs.local-plugin-file }})" >> $GITHUB_ENV
+
     - name: Move plugin to target directory and update permissions
       if: ${{ success() }}
       uses: appleboy/ssh-action@master
+      env:
+        SOURCE_FILE: ${{ env.SOURCE_FILE }}
+        TARGET_PATH: ${{ env.TARGET_PATH }}
       with:
         host: ${{ inputs.remote-host }}
         username: ${{ inputs.remote-user }}
@@ -82,13 +92,12 @@ runs:
         key: ${{ inputs.remote-ssh-key-content }}
         key_path: ${{ inputs.remote-ssh-key-file }}
         passphrase: ${{ inputs.remote-ssh-key-passphrase }}
+        envs: SOURCE_FILE,TARGET_PATH
         script_stop: true
         script: |
-          SOURCE_FILE=$(basename ${{ inputs.local-plugin-file }})
-          TARGET_PATH=${{ inputs.remote-plugin-dir }}/$SOURCE_FILE
           echo "Moving $SOURCE_FILE to $TARGET_PATH"
-          sudo mv ${{ env.SOURCE_FILE }} ${{ env.TARGET_PATH }}
+          sudo mv $SOURCE_FILE $TARGET_PATH
           echo "Changing owner and group to neo4j:neo4j"
-          sudo chown -R neo4j:neo4j ${{ env.TARGET_PATH }}
+          sudo chown -R neo4j:neo4j $TARGET_PATH
           echo "Changing mode to executable"
-          sudo chmod +x ${{ env.TARGET_PATH }}
+          sudo chmod +x $TARGET_PATH
