@@ -50,12 +50,13 @@ runs:
         echo "::error ::No remote SSH key or password was provided"
         exit 1
 
-    - name: Check if plugin is a JAR file
-      if: ${{ !endsWith(github.event.inputs.local-plugin-file, '.jar') }}
+    - name: Check if plugin artifact is a jar file
       shell: bash
-      run: | 
-        echo "::error ::Local plugin file is not a JAR file"
-        exit 1   
+      run: |
+        shopt -s nocasematch
+        if [[ ! "${{ github.event.inputs.local-plugin-file }}" =~ \.jar$ ]]; then
+          echo "::error ::Plugin is not a jar file" && exit 1
+        fi 
 
     - name: Upload plugin to remote Neo4j server
       if: ${{ success() }}
