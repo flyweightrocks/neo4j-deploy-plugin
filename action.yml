@@ -69,7 +69,7 @@ runs:
         key_path: ${{ inputs.remote-ssh-key-file }}
         passphrase: ${{ inputs.remote-ssh-key-passphrase }}
         source: ${{ inputs.local-plugin-file }}
-        target: "."
+        target: "plugin"
 
     - name: Prepare plugin file path
       if: ${{ success() }}
