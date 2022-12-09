@@ -110,9 +110,9 @@ runs:
         script: |
           cd $PLUGIN_DIR
           echo "List previous version of plugin with prefix $PLUGIN_PREFIX"
-          find . -iname "$PLUGIN_PREFIX*"
+          find . -iname "$PLUGIN_PREFIX*.jar"
           echo "Append suffix .old to all previous versions"
-          sudo find . -iname "$PLUGIN_PREFIX*" -exec rename .jar .jar.old '{}' \;
+          sudo find . -iname "$PLUGIN_PREFIX*.jar" -exec rename .jar .jar.old '{}' \;
 
     - name: Move plugin to target directory and update permissions
       if: ${{ success() }}
