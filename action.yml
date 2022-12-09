@@ -100,8 +100,8 @@ runs:
         echo "PLUGIN_PATH=${{ inputs.remote-plugin-dir }}/$(basename ${{ inputs.local-plugin-file }})" >> $GITHUB_ENV
         echo "PLUGIN_PREFIX=$(sed -rn "s/^(.*)-[0-9]+\.[0-9]+\.[0-9]+\.jar$/\1/p" <<< $PLUGIN_FILE)" >> $GITHUB_ENV
 
-    - name: Move plugin to target directory and update permissions
-      if: ${{ github.event.inputs.disable-previous-version == 'true' && success() }}
+    - name: Disable previous version of plugin
+      if: ${{ inputs.disable-previous-version == 'true' && success() }}
       uses: appleboy/ssh-action@master
       env:
         PLUGIN_DIR: ${{ env.PLUGIN_DIR }}
@@ -123,14 +123,14 @@ runs:
           echo "Append suffix .old to all previous versions"
           sudo find . -iname "$PLUGIN_PREFIX*.jar" -exec rename .jar .jar.old '{}' \;
 
+    # TODO restart Neo4j service
+
     - name: Move plugin to target directory and update permissions
       if: ${{ success() }}
       uses: appleboy/ssh-action@master
       env:
         PLUGIN_FILE: ${{ env.PLUGIN_FILE }}
-        PLUGIN_DIR: ${{ env.PLUGIN_DIR }}
         PLUGIN_PATH: ${{ env.PLUGIN_PATH }}
-        PLUGIN_PREFIX: ${{ env.PLUGIN_PREFIX }}
       with:
         host: ${{ inputs.remote-host }}
         username: ${{ inputs.remote-user }}
