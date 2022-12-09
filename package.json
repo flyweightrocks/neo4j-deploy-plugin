@@ -1,0 +1,21 @@
+{
+  "name": "neo4j-deploy-plugin",
+  "version": "1.0.0",
+  "description": "GitHub Action to deploy a plugin to Neo4j",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tag": "git tag -f v1  && git push -f --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flyweightrocks/neo4j-deploy-plugin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/flyweightrocks/neo4j-deploy-plugin/issues"
+  },
+  "homepage": "https://github.com/flyweightrocks/neo4j-deploy-plugin#readme"
+}

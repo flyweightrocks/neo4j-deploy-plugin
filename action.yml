@@ -123,8 +123,6 @@ runs:
           echo "Append suffix .old to all previous versions"
           sudo find . -iname "$PLUGIN_PREFIX*.jar" -exec rename .jar .jar.old '{}' \;
 
-    # TODO restart Neo4j service
-
     - name: Move plugin to target directory and update permissions
       if: ${{ success() }}
       uses: appleboy/ssh-action@master
@@ -148,3 +146,21 @@ runs:
           sudo chown -R neo4j:neo4j $PLUGIN_PATH
           echo "Changing mode to executable"
           sudo chmod +x $PLUGIN_PATH
+
+    - name: Restart Neo4j serice
+      if: ${{ inputs.restart-neo4j-service == 'true' && success() }}
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ inputs.remote-host }}
+        username: ${{ inputs.remote-user }}
+        password: ${{ inputs.remote-password }}
+        port: ${{ inputs.remote-port }}
+        key: ${{ inputs.remote-ssh-key-content }}
+        key_path: ${{ inputs.remote-ssh-key-file }}
+        passphrase: ${{ inputs.remote-ssh-key-passphrase }}
+        script_stop: true
+        script: |
+          cd $PLUGIN_DIR
+          echo "Restart Neo4j service"
+          sudo systemctl restart neo4j
+          sudo systemctl status -l neo4j.service
