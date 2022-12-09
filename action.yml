@@ -1,62 +1,71 @@
 # action.yml
-name: 'Neo4j Deploy Plugin'
-description: 'Deploy a Neo4j plugin to a remote Neo4j server'
+name: "Neo4j Deploy Plugin"
+description: "Deploy a Neo4j plugin to a remote Neo4j server"
 inputs:
-  local-plugin-file:  
-    description: 'Plugin JAR file to be deployed to Neo4j'
+  local-plugin-file:
+    description: "Plugin JAR file to be deployed to Neo4j"
+    type: string
     required: true
 
   disable-previous-version:
-    description: 'Disable previous version of plugin (append .old to JAR file)'
-    required: true
-    default: 'true'
+    description: "Disable previous version of plugin (append .old to JAR file)"
+    type: boolean
+    default: true
 
   restart-neo4j-service:
-    description: 'Restart Neo4j service after deploy'
-    required: false
-    default: 'false'
+    description: "Restart Neo4j service after deploy"
+    type: boolean
+    default: true
 
-  remote-host:  
-    description: 'Host address of remote Neo4j server'
+  remote-host:
+    description: "Host address of remote Neo4j server"
+    type: string
     required: true
 
-  remote-port:  
-    description: 'Port of remote Neo4j server'
-    required: false
-    default: '22'
+  remote-port:
+    description: "Port of remote Neo4j server"
+    type: string
+    required: true
+    default: "22"
 
-  remote-user:  
-    description: 'Username on remote Neo4j server'
+  remote-user:
+    description: "Username on remote Neo4j server"
+    type: string
     required: true
 
-  remote-password:  
-    description: 'Password on remote Neo4j server'
+  remote-password:
+    description: "Password on remote Neo4j server"
+    type: string
     required: false
 
-  remote-ssh-key-content:  
-    description: 'SSH private key content'
+  remote-ssh-key-content:
+    description: "SSH private key content"
+    type: string
     required: false
 
-  remote-ssh-key-file:  
-    description: 'SSH private key file'
+  remote-ssh-key-file:
+    description: "SSH private key file"
+    type: string
     required: false
 
   remote-ssh-key-passphrase:
-    description: 'Passphrase to decrypt SSH private key'
+    description: "Passphrase to decrypt SSH private key"
+    type: string
     required: false
 
   remote-plugin-dir:
-    description: 'Remote plugin directory on Neo4j'
+    description: "Remote plugin directory on Neo4j"
+    type: string
     required: false
-    default: '/var/lib/neo4j/plugins'
+    default: "/var/lib/neo4j/plugins"
 
 runs:
   using: "composite"
   steps:
     - name: Check if remote SSH key or password was provided
-      if: ${{ github.event.inputs.remote-password ==  '' && github.event.inputs.remote-ssh-key-content == '' && github.event.inputs.remote-ssh-key-file == '' }}
+      if: ${{ inputs.remote-password ==  '' && inputs.remote-ssh-key-content == '' && inputs.remote-ssh-key-file == '' }}
       shell: bash
-      run: | 
+      run: |
         echo "::error ::No remote SSH key or password was provided" && exit 1
 
     # - name: Check if plugin artifact is a jar file
@@ -65,7 +74,7 @@ runs:
     #     shopt -s nocasematch
     #     if [[ ! ${{ github.event.inputs.local-plugin-file }} =~ \.jar$ ]]; then
     #       echo "::error ::Plugin is not a jar file" && exit 1
-    #     fi 
+    #     fi
 
     - name: Upload plugin to remote Neo4j server
       if: ${{ success() }}
